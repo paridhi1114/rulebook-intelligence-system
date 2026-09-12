@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink-void: #070C18;
+  --ink-navy: #0F1A30;
+  --ink-slate: #162544;
+  --stroke: #23355C;
+  --bone: #F1F5F9;
+  --muted: #94A3B8;
+  --gold: #E2C372;
+  --amber: #F59E0B;
+  --emerald: #10B981;
+  --rose: #F43F5E;
+  --cyan: #06B6D4;
+
+  --background: 222 55% 6%;
+  --foreground: 210 40% 96%;
+  --card: 219 52% 12%;
+  --card-foreground: 210 40% 96%;
+  --popover: 219 52% 12%;
+  --popover-foreground: 210 40% 96%;
+  --primary: 41 62% 66%;
+  --primary-foreground: 222 55% 6%;
+  --secondary: 218 47% 18%;
+  --secondary-foreground: 210 40% 96%;
+  --muted: 218 47% 18%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 218 47% 18%;
+  --accent-foreground: 210 40% 96%;
+  --destructive: 350 89% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 219 45% 25%;
+  --input: 219 45% 22%;
+  --ring: 41 62% 66%;
+  --radius: 0.5rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--ink-void);
+  color: var(--bone);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif { font-family: 'Fraunces', Georgia, serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Parchment / ink texture backdrop */
+.ink-backdrop {
+  background-color: var(--ink-void);
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%, rgba(226, 195, 114, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 0% 0%, rgba(6, 182, 212, 0.06), transparent 55%),
+    linear-gradient(180deg, #070C18 0%, #080E1C 100%);
+}
+
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hairline {
+  border: 1px solid var(--stroke);
+}
+
+::selection {
+  background: rgba(226, 195, 114, 0.28);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0a1223; }
+::-webkit-scrollbar-thumb { background: #223257; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #2e4270; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes scan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(400%); opacity: 0; }
+}
+.scanline {
+  position: absolute;
+  left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(226,195,114,0.14), transparent);
+  animation: scan 1.8s ease-in-out infinite;
+}
+
+.highlight-passage {
+  background: linear-gradient(180deg, rgba(226,195,114,0.0) 55%, rgba(226,195,114,0.22) 55%);
+}
+
+@layer base {
+  body { @apply bg-background text-foreground; }
+}

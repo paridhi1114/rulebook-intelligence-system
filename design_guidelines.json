@@ -1,0 +1,152 @@
+{
+  "project_name": "The Rulebook That Argues With Itself - Academic Regulations Intelligence System",
+  "archetype": "Authoritative Legal & Regulatory Intelligence",
+  "theme": "Dark / Deep Ink Navy & Parchment Accent (Authoritative Legal Document Feel)",
+  "design_personality": {
+    "vibe": "Scholarly, authoritative, precise, judicial, analytical",
+    "inspiration": "Architectural legal codices, Swiss grid typography, intelligence command centers, antique parchment accents with high-precision digital data frames",
+    "prohibited_elements": [
+      "Inter font for headings",
+      "Generic blue tech gradients",
+      "Centering every text block",
+      "Boring equal-square grids",
+      "Flat transparent overlays on headers and modals",
+      "AI assistant emojis like 🤖🧠💭💡🔮🎯"
+    ]
+  },
+  "typography": {
+    "font_pairing_strategy": "The Old Money Judicial Tech (Classic Serif Display Headings + Precision Monospace & Geometric Sans Body)",
+    "headline_font": "Playfair Display, Cormorant Garamond, or Georgia (Serif, authoritative, elegant)",
+    "body_font": "Plus Jakarta Sans, System Sans (-apple-system, Segoe UI, Roboto)",
+    "mono_data_font": "JetBrains Mono, Source Code Pro (for rule IDs, citations, metrics, exact text line numbers)",
+    "hierarchy": {
+      "h1_hero": "text-4xl sm:text-5xl lg:text-6xl font-serif font-semibold tracking-tight leading-none text-slate-100",
+      "h2_section": "text-2xl sm:text-3xl lg:text-4xl font-serif font-medium tracking-tight text-slate-100",
+      "h3_card_title": "text-xl sm:text-2xl font-serif font-medium text-slate-200",
+      "h4_subheading": "text-lg sm:text-xl font-medium text-slate-300",
+      "eyebrow_label": "text-xs font-mono uppercase tracking-[0.25em] text-amber-400/90 font-semibold",
+      "body": "text-base leading-relaxed text-slate-300",
+      "small_citation": "text-sm font-mono text-slate-400"
+    }
+  },
+  "colors": {
+    "palette_archetype": "Deep Obsidian Ink (#0B132B) & Gold Parchment (#F4E8C1) with Judicial Status Triggers",
+    "base_background": "#070C18 (Deep Ink Void)",
+    "surface_cards": "#0F1A30 (Ink Navy Slate)",
+    "surface_card_secondary": "#162544 (Elevated Slate Container)",
+    "borders": "#23355C (Fine Metallic Stroke)",
+    "primary_text": "#F1F5F9 (Crisp Bone White)",
+    "muted_text": "#94A3B8 (Cool Slate Muted)",
+    "brand_accents": {
+      "gold_parchment": "#E2C372 (Authority Accent)",
+      "amber_warning": "#F59E0B (Conflict Alert Trigger)",
+      "emerald_answerable": "#10B981 (Answerable Verification)",
+      "rose_not_answerable": "#F43F5E (Unanswerable Absence Tag)",
+      "cyan_citation": "#06B6D4 (Evidence Anchor Highlight)"
+    },
+    "state_badges": {
+      "ANSWERABLE": {
+        "container": "bg-emerald-950/80 border-2 border-emerald-500/80 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.25)]",
+        "icon": "CheckCircle2",
+        "label": "ANSWERABLE (GROUNDED IN RULEBOOK)"
+      },
+      "NOT_ANSWERABLE": {
+        "container": "bg-rose-950/80 border-2 border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.25)]",
+        "icon": "HelpCircle",
+        "label": "NOT ANSWERABLE (ABSENT IN REGULATIONS)"
+      },
+      "CONTRADICTORY": {
+        "container": "bg-amber-950/80 border-2 border-amber-500/80 text-amber-300 shadow-[0_0_25px_rgba(245,158,11,0.3)] animate-pulse",
+        "icon": "AlertTriangle",
+        "label": "CONTRADICTORY (REGULATORY CONFLICT DETECTED)"
+      }
+    }
+  },
+  "layout_and_grids": {
+    "structure": "Split-Screen Intelligence Studio (Query & Reasoning Panel on Left/Main, Interactive Source Rulebook Browser & Evaluation Suite on Tabs/Right)",
+    "bento_spans": {
+      "query_hero": "col-span-full lg:col-span-12 space-y-6",
+      "main_answer_panel": "col-span-full lg:col-span-8 space-y-8",
+      "side_metadata_panel": "col-span-full lg:col-span-4 space-y-6",
+      "conflict_split": "grid grid-cols-1 md:grid-cols-2 gap-6"
+    },
+    "container_padding": "p-6 md:p-8 lg:p-10",
+    "card_padding": "p-6 md:p-8"
+  },
+  "key_components": [
+    {
+      "name": "Header & Nav Bar",
+      "description": "Sticky dark navy header with backdrop-blur-md, judicial seal branding, status indicator (6000+ words loaded, 8 chapters), and tab navigation between 'Ask Intelligence System', 'Browse Rulebook', and 'Accuracy Evaluation Dashboard'.",
+      "data_testid": "app-header-nav"
+    },
+    {
+      "name": "Question Input Section",
+      "description": "Prominent inquiry box with preset example questions (e.g. 'Can a student retake an exam after failing twice?', 'What is the minimum attendance required for honors?', 'Can probation students hold student government posts?'). Features an 'Ask Rulebook' action button with subtle loading spinner.",
+      "data_testid": "question-input-form"
+    },
+    {
+      "name": "State Classification Badge",
+      "description": "Large, unmistakable 3D-styled indicator banner at the top of the answer panel displaying ANSWERABLE, NOT_ANSWERABLE, or CONTRADICTORY with explicit reason summary and icon.",
+      "data_testid": "state-classification-badge"
+    },
+    {
+      "name": "Evidence Cards Grid",
+      "description": "Grounding citations containing Rule ID, Chapter Title, Section, Subsection, and exact verbatim text quote highlighted in parchment yellow with explanation of relevance.",
+      "data_testid": "evidence-cards-container"
+    },
+    {
+      "name": "Conflict Side-by-Side Cards",
+      "description": "Visible when status is CONTRADICTORY. Displays Clause A vs Clause B in two distinct dark-rose/amber bordered panels highlighting the precise wording collision.",
+      "data_testid": "conflict-cards-container"
+    },
+    {
+      "name": "Rulebook Source Viewer",
+      "description": "Interactive chapter/section explorer with live search filter, rule index sidebar, and verbatim passage reader.",
+      "data_testid": "rulebook-source-viewer"
+    },
+    {
+      "name": "Evaluation Dashboard",
+      "description": "Analytics suite showing overall accuracy %, per-state accuracy breakdown (Answerable, Unanswerable, Contradictory metrics), and a 25-question evaluation table with real-time pass/fail badges.",
+      "data_testid": "evaluation-dashboard"
+    }
+  ],
+  "image_urls": [
+    {
+      "category": "hero_background_texture",
+      "url": "https://images.unsplash.com/photo-1742975710558-1caf75cdbda2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHw0fHx1bml2ZXJzaXR5JTIwbGlicmFyeSUyMGxhdyUyMGJvb2slMjBhcmNoaXRlY3R1cmFsJTIwcGlsbGFyJTIwZG9jdW1lbnR8ZW58MHx8fHwxNzg5MjE1Nzk3fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Deep academic law library book stack background image for subtle hero backdrop overlay."
+    },
+    {
+      "category": "rulebook_cover_banner",
+      "url": "https://images.unsplash.com/photo-1696197019015-68ef1bf9cb4a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwbGlicmFyeSUyMGxhdyUyMGJvb2slMjBhcmNoaXRlY3R1cmFsJTIwcGlsbGFyJTIwZG9jdW1lbnR8ZW58MHx8fHwxNzg5MjE1Nzk3fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Library archives shelf visual for document source viewer header."
+    }
+  ],
+  "motion_and_interactions": {
+    "hover_states": "border border-amber-500/40 translate-y-[-2px] transition-all duration-200 ease-out",
+    "click_states": "scale-[0.98] transition-transform duration-100",
+    "loading_state": "Animate pulse scanlines over passage card with 'Scanning 6,420 words across 8 chapters...' ticker text.",
+    "tab_switch": "Smooth opacity and slight slide transition (duration-200)"
+  },
+  "accessibility_and_testing": {
+    "data_testid_rule": "ALL interactive buttons, inputs, tabs, state badges, metric cards, and table rows MUST have explicit kebab-case data-testid attributes.",
+    "contrast_guarantee": "Text contrast ratio > 4.5:1 against deep dark slate surfaces. All badges use solid dark background tints rather than full transparency.",
+    "prefers_reduced_motion": "Wrap animations in motion-safe queries or check prefers-reduced-motion."
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the 3-state classification: ANSWERABLE, NOT_ANSWERABLE, CONTRADICTORY.",
+    "Ensure the state classification badge is prominent, large, and unmistakable with clear visual distinctness for each of the three states.",
+    "Provide side-by-side comparison panels whenever a question is classified as CONTRADICTORY.",
+    "Include full citations (rule_id, chapter, section, subsection, exact_text, explanation) for grounded answers.",
+    "Build a dedicated Evaluation Dashboard tab showcasing classification accuracy across 25 pre-seeded evaluation test questions.",
+    "Integrate the Rulebook Source Viewer so users can browse all chapters, sections, and search rules manually.",
+    "Add explicit data-testid attributes to all key components, buttons, tabs, inputs, state badges, and table rows."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Do not use transparent header backgrounds without solid tint or blur.",
+    "Do not default to Inter font for headings; use serif styles (Playfair Display / Georgia / Cormorant Garamond).",
+    "Use generous padding inside all bordered containers (p-6 or p-8).",
+    "Ensure sonner is used for toasts and feedback.",
+    "Every interaction must feature responsive micro-interactions (hover, active, focus)."
+  ]
+}

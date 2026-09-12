@@ -1,0 +1,217 @@
+"""
+Evaluation set: EXACTLY 25 realistic, non-trivial questions with ground-truth labels.
+
+Mix: ANSWERABLE (10), CONTRADICTORY (8), NOT_ANSWERABLE (7). Includes near-miss and
+plausible-adjoining questions that share vocabulary with the rulebook but whose specific
+answer is either absent or in conflict. `expected_rule_ids` are the passages that SHOULD
+support (ANSWERABLE) or conflict (CONTRADICTORY); for NOT_ANSWERABLE it is empty and
+`near_miss_ids` lists the adjoining passages a naive system might latch onto.
+"""
+
+EVAL_QUESTIONS = [
+    # ---------------------------------------------------------------- ANSWERABLE
+    {
+        "id": 1,
+        "question": "Up to when can I drop a course without it appearing on my transcript?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["REG-012"],
+        "near_miss_ids": ["DDL-006"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 2,
+        "question": "How long after an exam starts am I no longer allowed to enter the hall?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["EXM-002"],
+        "near_miss_ids": [],
+        "difficulty": "standard",
+    },
+    {
+        "id": 3,
+        "question": "What CGPA do I need to be admitted to the honors track?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["ELI-007"],
+        "near_miss_ids": ["ATT-005"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 4,
+        "question": "What is the maximum number of transfer credits I can bring toward my degree?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["ELI-016"],
+        "near_miss_ids": [],
+        "difficulty": "standard",
+    },
+    {
+        "id": 5,
+        "question": "By default, how are marks split between internal assessment and the end-semester exam?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["EXM-014"],
+        "near_miss_ids": ["ASG-001"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 6,
+        "question": "What similarity index must my project report stay below?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["PRJ-009"],
+        "near_miss_ids": [],
+        "difficulty": "standard",
+    },
+    {
+        "id": 7,
+        "question": "What is the maximum time allowed to complete the undergraduate degree?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["ELI-013"],
+        "near_miss_ids": [],
+        "difficulty": "standard",
+    },
+    {
+        "id": 8,
+        "question": "Is the internship graded with a letter grade or pass/fail?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["INT-010"],
+        "near_miss_ids": [],
+        "difficulty": "standard",
+    },
+    {
+        "id": 9,
+        "question": "What happens to my result if I have unpaid dues or unreturned library books?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["GRD-022"],
+        "near_miss_ids": ["DDL-012"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 10,
+        "question": "If I represent the university at a sanctioned sports event, does that time count as attendance?",
+        "expected_state": "ANSWERABLE",
+        "expected_rule_ids": ["LEV-009"],
+        "near_miss_ids": ["LEV-001"],
+        "difficulty": "edge",
+    },
+
+    # ---------------------------------------------------------------- CONTRADICTORY
+    {
+        "id": 11,
+        "question": "What minimum attendance percentage do I need to be allowed to sit the end-semester exam?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["ATT-002", "EXM-003"],
+        "near_miss_ids": ["ATT-005", "ATT-008"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 12,
+        "question": "How many times am I allowed to attempt the supplementary exam for a course I failed?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["REX-002", "REX-006"],
+        "near_miss_ids": ["REX-001", "REX-009"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 13,
+        "question": "Can I submit an assignment after the due date, and what happens if I do?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["ASG-003", "DDL-004"],
+        "near_miss_ids": ["ASG-009"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 14,
+        "question": "How many days of medical leave am I entitled to in a semester?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["LEV-002", "LEV-006"],
+        "near_miss_ids": ["ATT-008", "LEV-001"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 15,
+        "question": "What is the minimum passing grade for a course?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["GRD-003", "GRD-008"],
+        "near_miss_ids": ["GRD-001"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 16,
+        "question": "How many total credits do I need to graduate?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["GRAD-002", "GRAD-007"],
+        "near_miss_ids": ["GRAD-001"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 17,
+        "question": "What is the deadline to file an appeal after a decision is communicated to me?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["APL-002", "APL-005"],
+        "near_miss_ids": ["APL-001", "APL-006"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 18,
+        "question": "What is the maximum number of students allowed in a capstone project team?",
+        "expected_state": "CONTRADICTORY",
+        "expected_rule_ids": ["PRJ-003", "PRJ-006"],
+        "near_miss_ids": ["PRJ-001"],
+        "difficulty": "standard",
+    },
+
+    # ---------------------------------------------------------------- NOT_ANSWERABLE
+    {
+        "id": 19,
+        "question": "What is the university's policy on remote or online proctored examinations?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["EXM-002", "EXM-011", "EXM-020"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 20,
+        "question": "How many days of paternity leave can a student-parent take?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["LEV-012", "LEV-015"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 21,
+        "question": "What is the exact fee amount charged to register for a supplementary examination?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["REX-009"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 22,
+        "question": "Does the university provide health insurance coverage to enrolled students?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["LEV-002", "SCH-011"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 23,
+        "question": "Is there a dress code that students must follow on campus?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["DIS-001"],
+        "difficulty": "standard",
+    },
+    {
+        "id": 24,
+        "question": "What percentage of tuition does need-based financial aid specifically cover?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["SCH-011", "SCH-002"],
+        "difficulty": "edge",
+    },
+    {
+        "id": 25,
+        "question": "After exhausting the internal appeal, what external body can a student appeal to and how?",
+        "expected_state": "NOT_ANSWERABLE",
+        "expected_rule_ids": [],
+        "near_miss_ids": ["APL-009", "APL-001"],
+        "difficulty": "edge",
+    },
+]
