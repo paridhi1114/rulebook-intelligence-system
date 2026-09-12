@@ -29,13 +29,14 @@ accuracy. (IT Geeks AI Developer Vibe Coding Round.)
 
 ## Implemented (2026-06-12)
 - 6,021-word, 101-rule, 18-chapter synthetic rulebook with 19 subtle contradictions.
-- Hybrid BM25+TF-IDF retriever with inspectable retrieval trace in UI.
-- Gemini grounded reasoning with anti-hallucination citation validation.
-- Full 3-state Ask UI: state badge, answer/explanation, evidence cards, side-by-side conflict cards, missing-information block, retrieval trace.
-- Browse Rulebook viewer with chapter nav, search, conflict flags.
-- Evaluation dashboard: 25 questions, live run, overall/per-state/retrieval/citation/edge metrics + results table.
-- README, .env.example, .gitignore, backend/frontend .env.example.
-- Verified: backend pytest 8/8 pass; frontend E2E pass; eval run 92%–100% overall (non-deterministic). Mobile responsive, no overflow.
+- **Phase 1:** Hybrid BM25 + TF-IDF retriever; Gemini grounded reasoning with anti-hallucination citation validation; full 3-state Ask UI (state badge, answer/explanation, evidence cards, side-by-side conflict cards, missing-information block, retrieval trace); Browse viewer with conflict flags; Evaluation dashboard (25 Qs, live metrics); README/.env.example/.gitignore.
+- **Phase 2 (core reasoning engine hardening):**
+  - Semantic retriever upgraded to **real Google Gemini embeddings** (`gemini-embedding-001`, 768-dim, `google-genai`, server-side `GEMINI_API_KEY`), L2-normalised, **cached in MongoDB** (`embedding_cache`), built in a rate-limit-aware background task with automatic **TF-IDF fallback**. Hybrid fusion 0.45 BM25 / 0.55 semantic.
+  - `GET /api/system/info` reports the live retrieval backend.
+  - Reasoning layer: stricter scope/contradiction logic (overlapping scopes with different requirements = contradiction unless explicit precedence), retry on malformed/invalid model output, graceful error handling (Gemini errors, empty query 400, no-retrieval, rate limits) without exposing secrets.
+  - Source integrity: cited rule_ids validated against retrieved candidate set (no invented citations).
+  - 8 representative Phase-2 tests (`backend/tests/test_phase2_pipeline.py`) covering answerable/unanswerable/contradictory/semantic-paraphrase/exact-keyword/exception/related-not-contradictory/empty-query — all pass.
+  - Measured eval: representative run 25/25 (100%) with Gemini embeddings; non-deterministic so may vary.
 
 ## Backlog / Remaining
 - **P1:** Async job + polling for evaluation run (currently a single blocking POST ~60–90s).

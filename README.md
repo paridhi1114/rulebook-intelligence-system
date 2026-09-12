@@ -56,11 +56,12 @@ separate modules so each can be reasoned about and swapped independently.
 - **Frontend:** React 19, Tailwind CSS, shadcn/ui primitives, lucide-react icons, sonner
   toasts, React Query. Serif/mono editorial "legal intelligence" theme.
 - **Backend:** FastAPI (Python), Motor (async MongoDB).
-- **Retrieval:** `rank_bm25` (BM25 lexical) + scikit-learn `TfidfVectorizer` (vector-space
-  cosine similarity), score-fused.
+- **Retrieval:** `rank_bm25` (BM25 lexical) + **Google Gemini embeddings**
+  (`gemini-embedding-001` via `google-genai`, cached in MongoDB) for semantic similarity,
+  with a scikit-learn TF-IDF cosine fallback. Scores are min-max normalised and fused.
 - **Reasoning:** Google **Gemini** (`gemini-3.1-pro-preview`) via Emergent's universal LLM
   key, called **server-side only**.
-- **Database:** MongoDB (query history + evaluation runs).
+- **Database:** MongoDB (query history + evaluation runs + embedding cache).
 
 > The spec suggested Node/Express + TypeScript; this deployment target is optimised for
 > FastAPI + React, so the backend is Python. The architecture, contracts, and guarantees
@@ -68,23 +69,39 @@ separate modules so each can be reasoned about and swapped independently.
 
 ## 4. Retrieval Pipeline
 
-`backend/retrieval.py` — a genuine hybrid pipeline (we never dump the whole rulebook into
-the LLM):
+`backend/retrieval.py` + `backend/embeddings.py` — a genuine hybrid pipeline (we never
+dump the whole rulebook into the LLM):
 
 1. **Load** the rulebook (101 rules) with full metadata.
 2. **Chunk** at the rule level — each rule is a self-contained, citable unit that preserves
    `rule_id / chapter / section / subsection / title / exact_text`.
 3. **Represent** each rule two ways:
-   - **BM25** over tokenised text (lexical / keyword matching).
-   - **TF-IDF** unigram+bigram vectors (a vector-space semantic representation) scored with
-     cosine similarity.
-4. **Retrieve** by min-max normalising both score vectors and fusing them
-   (`0.5·BM25 + 0.5·vector`); return the top-K (default 8) passages.
+   - **BM25** over tokenised text (lexical / keyword matching) — best on exact terminology.
+   - **Gemini embeddings** (`gemini-embedding-001`, 768-dim, L2-normalised) with cosine
+     similarity — the semantic signal that matches paraphrased questions with little word
+     overlap. Corpus vectors are embedded once and **cached in MongoDB** (`embedding_cache`,
+     keyed by model + SHA-256 text hash) so they persist across restarts and are never
+     re-computed. If `GEMINI_API_KEY` is absent or the embedding API errors, the system
+     **transparently falls back to a TF-IDF vector-space cosine** so it never breaks.
+4. **Hybrid ranking** — both score vectors are min-max normalised per query and fused with a
+   weighted sum (`0.45·BM25 + 0.55·semantic` when Gemini embeddings are active, `0.5/0.5`
+   on the TF-IDF fallback). Top-K (default 10) passages are returned.
 5. **Pass only the retrieved evidence** to the reasoning layer.
 6. **Produce** a structured answer.
 
-Each response exposes a **retrieval trace** in the UI (fused / BM25 / vector scores per
-passage) so retrieval is fully inspectable.
+Each response exposes a **retrieval trace** in the UI (fused / BM25 / semantic scores per
+passage), and `GET /api/system/info` reports exactly which semantic backend is live
+(`gemini` vs `tfidf`).
+
+### Why Gemini embeddings use a separate Google API key
+The Emergent Universal Key (used for Gemini *reasoning*) does **not** expose a working
+embeddings model — verified by direct testing against the proxy (`/v1/models` lists only a
+chat model tagged for embeddings, which Google rejects for `embedContent`). Real semantic
+embeddings therefore use a dedicated server-side `GEMINI_API_KEY` via the official
+`google-genai` SDK. The key lives only in `backend/.env` and is never exposed to the
+frontend. Corpus embedding is chunked and rate-limit aware (free tier = 100 req/min) and
+runs as a background task at startup so the app serves immediately (via TF-IDF) and swaps
+in Gemini embeddings once ready.
 
 ## 5. Conflict Detection Approach
 
@@ -224,7 +241,10 @@ In this managed environment both services run under **supervisor**
 | `MONGO_URL` | MongoDB connection string |
 | `DB_NAME` | Database name |
 | `CORS_ORIGINS` | Allowed origins (comma-separated or `*`) |
-| `EMERGENT_LLM_KEY` | Server-side key used to call Gemini |
+| `EMERGENT_LLM_KEY` | Server-side key used to call Gemini for reasoning |
+| `GEMINI_API_KEY` | Google Gemini key for the embeddings retriever (optional; TF-IDF fallback if unset) |
+| `EMBEDDING_MODEL` | Embedding model id (default `gemini-embedding-001`) |
+| `EMBEDDING_DIMENSIONS` | Embedding dimension (default `768`) |
 
 **frontend/.env**
 | Key | Description |
@@ -244,10 +264,12 @@ In this managed environment both services run under **supervisor**
 
 - **Non-determinism:** Gemini outputs vary slightly between runs; borderline near-miss
   questions are the most sensitive.
-- **Semantic retriever:** TF-IDF is a vector-space (bag-of-ngrams) representation, not a
-  neural embedding. It is fast, dependency-light, and effective on this legalese corpus,
-  but a dense embedding model would capture paraphrase better. The retriever is a single
-  swappable class (`HybridRetriever`).
+- **Semantic retriever:** the primary semantic signal is Gemini `gemini-embedding-001`
+  (real dense embeddings). If no `GEMINI_API_KEY` is configured, or the embedding API is
+  rate-limited/unavailable, the system falls back to a TF-IDF vector-space cosine, which is
+  keyword-based and weaker on paraphrase. The active backend is reported at
+  `GET /api/system/info`. Free-tier embedding quota is 100 req/min, so the first cold build
+  of the 101 corpus vectors is chunked/spread and runs in the background.
 - **Conflict scope:** the system flags conflicts among the top-K retrieved passages; a
   conflict whose two sides never co-retrieve for any phrasing could be missed (mitigated by
   shared-vocabulary corpus design and K=8).

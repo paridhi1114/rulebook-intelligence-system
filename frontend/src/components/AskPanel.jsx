@@ -172,7 +172,7 @@ export const AskPanel = () => {
                       <span className="font-mono font-semibold text-cyan-300">{p.rule_id}</span>
                       <span className="flex-1 truncate text-slate-300">{p.title}</span>
                       <span className="font-mono text-[#4a5f8a]">
-                        fused {p.scores.fused} · bm25 {p.scores.bm25} · vec {p.scores.vector}
+                        fused {p.scores.fused} · bm25 {p.scores.bm25} · sem {p.scores.semantic}
                       </span>
                     </div>
                   ))}

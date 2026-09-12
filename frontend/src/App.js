@@ -40,7 +40,7 @@ function App() {
 
       <footer className="relative z-10 border-t border-[#23355C] py-6 text-center">
         <p className="font-mono text-xs text-[#4a5f8a]">
-          Hybrid retrieval (BM25 + TF-IDF vectors) · Gemini reasoning · answers grounded in retrieved passages only
+          Hybrid retrieval (BM25 + Gemini / semantic embeddings) · Gemini reasoning · answers grounded in retrieved passages only
         </p>
       </footer>
     </div>

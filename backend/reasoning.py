@@ -165,20 +165,34 @@ async def reason_over_passages(question: str, passages: List[Dict]) -> Dict:
 
     user_message = UserMessage(text=_build_user_message(question, passages))
 
-    raw = await chat.send_message(user_message)
+    # Retry once on a malformed / invalid response so a single bad generation
+    # does not surface as an error to the user.
+    last_err = None
+    for attempt in range(2):
+        try:
+            raw = await chat.send_message(user_message)
+        except Exception as e:
+            last_err = e
+            logger.error("Gemini call failed (attempt %s): %s", attempt + 1, e)
+            continue
+        try:
+            result = _extract_json(raw)
+        except Exception as e:
+            last_err = e
+            logger.error("Failed to parse Gemini JSON (attempt %s): %s\nRAW: %s", attempt + 1, e, raw)
+            continue
+        state = result.get("state")
+        if state not in {"ANSWERABLE", "NOT_ANSWERABLE", "CONTRADICTORY"}:
+            last_err = ValueError(f"invalid state: {state}")
+            logger.error("Invalid state from model (attempt %s): %s", attempt + 1, state)
+            continue
 
-    try:
-        result = _extract_json(raw)
-    except Exception as e:
-        logger.error("Failed to parse Gemini JSON: %s\nRAW: %s", e, raw)
-        raise ValueError(f"Reasoning layer returned unparseable output: {e}")
+        result = _validate_grounding(result, passages)
+        result = _hydrate_citations(result, passages)
+        result["model"] = MODEL_NAME
+        result.setdefault("missing_information", "")
+        result.setdefault("answer", "")
+        result.setdefault("explanation", "")
+        return result
 
-    state = result.get("state")
-    if state not in {"ANSWERABLE", "NOT_ANSWERABLE", "CONTRADICTORY"}:
-        raise ValueError(f"Reasoning layer returned invalid state: {state}")
-
-    result = _validate_grounding(result, passages)
-    result = _hydrate_citations(result, passages)
-    result["model"] = MODEL_NAME
-    result.setdefault("missing_information", "")
-    return result
+    raise ValueError(f"Reasoning layer failed to produce a valid response: {last_err}")

@@ -9,6 +9,7 @@ import uuid
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Optional
+from starlette.concurrency import run_in_threadpool
 
 from pydantic import BaseModel, Field
 
@@ -23,6 +24,12 @@ from eval_data import EVAL_QUESTIONS
 mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
+
+# Synchronous handle used only to persist the Gemini embedding cache (built at startup,
+# outside the async request path). Keeps corpus embeddings across restarts.
+from pymongo import MongoClient as _SyncMongoClient
+_sync_db = _SyncMongoClient(mongo_url)[os.environ["DB_NAME"]]
+_embedding_cache = _sync_db["embedding_cache"]
 
 app = FastAPI(title="Rulebook Intelligence System")
 api_router = APIRouter(prefix="/api")
@@ -47,6 +54,13 @@ class EvalResultDoc(BaseModel):
 @api_router.get("/")
 async def root():
     return {"message": "Rulebook Intelligence System API", "status": "ok"}
+
+
+@api_router.get("/system/info")
+async def system_info():
+    """Transparency endpoint: which retrieval backends are actually in use."""
+    retriever = get_retriever(cache_collection=_embedding_cache)
+    return {"retrieval": retriever.info(), "reasoning_model": "gemini-3.1-pro-preview"}
 
 
 @api_router.get("/rulebook/stats")
@@ -74,8 +88,8 @@ async def ask(req: AskRequest):
     if not question:
         raise HTTPException(status_code=400, detail="Question must not be empty.")
 
-    retriever = get_retriever()
-    passages = retriever.retrieve(question, top_k=10)
+    retriever = get_retriever(cache_collection=_embedding_cache)
+    passages = await run_in_threadpool(retriever.retrieve, question, 10)
 
     try:
         result = await reason_over_passages(question, passages)
@@ -128,8 +142,8 @@ def _score_retrieval(expected_ids: List[str], retrieved_ids: List[str], cited_id
 
 
 async def _evaluate_one(q: dict):
-    retriever = get_retriever()
-    passages = retriever.retrieve(q["question"], top_k=10)
+    retriever = get_retriever(cache_collection=_embedding_cache)
+    passages = await run_in_threadpool(retriever.retrieve, q["question"], 10)
     retrieved_ids = [p["rule_id"] for p in passages]
 
     result = await reason_over_passages(q["question"], passages)
@@ -251,9 +265,19 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def warm_up():
-    # Build retrieval indices at startup so the first request is fast.
-    get_retriever()
-    logger.info("Retriever warmed up: %s", corpus_stats())
+    # Build retrieval indices at startup so the first request is fast. Passing the sync
+    # cache collection lets Gemini corpus embeddings persist across restarts.
+    retriever = await run_in_threadpool(get_retriever, _embedding_cache)
+    logger.info("Retriever warmed up: %s | %s", corpus_stats(), retriever.info())
+
+    # If Gemini embeddings are configured but not yet fully cached, build them in the
+    # background (chunked + rate-limit aware) without blocking startup. The retriever
+    # serves via TF-IDF until the embeddings are ready, then swaps them in.
+    if retriever.embedder.available and retriever.semantic_backend != "gemini":
+        async def _bg():
+            await run_in_threadpool(retriever.ensure_semantic)
+            logger.info("Background semantic build done: %s", retriever.info())
+        asyncio.create_task(_bg())
 
 
 @app.on_event("shutdown")
